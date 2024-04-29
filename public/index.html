@@ -167,7 +167,7 @@
                 return;
             }
             selectedFiles.forEach((file) => {
-                fetch(`/download/:${file}`)
+                fetch(`/download/${file}`)
                     .then(response => response.blob())
                     .then(blob => {
                         const downloadUrl = window.URL.createObjectURL(blob);

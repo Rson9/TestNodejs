@@ -38,12 +38,15 @@ const downloadDir = path.join(__dirname, 'uploads');
 //下载文件
 app.get('/download/:filename', (req, res) => {
     const filename = req.params.filename;
+    console.log('Attempting to serve file from path:', filename);
     const filePath = path.join(downloadDir, filename);
 
     if (fs.existsSync(filePath)) {
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        const encodedFilename = encodeURIComponent(filename);
+        res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
         fs.createReadStream(filePath).pipe(res);
     } else {
+        console.log('Attempting to serve file from path:', filePath);
         res.status(404).send({ message: '文件未找到' });
     }
 });
