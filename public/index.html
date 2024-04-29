@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件共享平台</title>
+    <link rel="stylesheet" href="fileList.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header,
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+        }
+
+        .file-upload,
+        .file-download {
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-upload h2,
+        .file-download h2 {
+            margin-bottom: 35px;
+        }
+
+        .file-upload input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        #sc {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .file-upload button:hover {
+            background-color: #0056b3;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+
+        .flex-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .flex-container h2,
+        .flex-container button {
+            margin-right: 60px;
+            /* 在标题和按钮之间创建空隙 */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>文件共享平台</h1>
+    </header>
+    <section class="file-upload">
+        <h2>上传文件</h2>
+        <input type="file" id="fileInput" name="file" accept="*">
+        <button onclick="uploadFile()" id="sc">上传</button>
+    </section>
+    <section class="file-download">
+        <div class="flex-container">
+            <h2>文件目录</h2>
+            <button onclick="downloadFile()" id="sc">下载</button>
+        </div>
+
+        <ul id="fileList">
+            <!-- 文件列表项将在这里动态生成 -->
+        </ul>
+
+    </section>
+    <footer>
+        <p>版权所有 &copy; 2024 文件共享平台</p>
+    </footer>
+    <script>
+
+        //上传文件
+        function uploadFile() {
+            var fileInput = document.getElementById('fileInput');
+            var file = fileInput.files[0];
+            if (file) {
+                var formData = new FormData();
+                formData.append('file', file);
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        window.location.href = 'upload-success.html';
+                        // 更新文件列表
+                        updateFileList();
+                    })
+                    .catch(error => {
+                        alert.error('上传失败:');
+                    });
+            } else {
+                alert('未选择文件');
+            }
+        }
+        //获取文件列表
+
+        function updateFileList() {
+            fetch('/api/files')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // 转换为JSON
+                })
+
+                .then(fileList => {
+                    const fileListElement = document.getElementById('fileList');
+                    // 你可以在这里将文件列表渲染到页面上
+                    fileList.forEach(fileName => {
+                        const listItem = document.createElement('li');
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox'; // 设置类型为复选框
+                        checkbox.className = 'checked-file';
+                        checkbox.value = fileName;
+                        // 将复选框添加到 <li> 中
+                        listItem.appendChild(checkbox);
+                        listItem.className = 'file-list';
+
+                        // 设置 <li> 的文本内容为文件名，并确保文本紧跟复选框之后
+                        listItem.appendChild(document.createTextNode(fileName));
+
+                        // 将 <li> 添加到 <ul> 中
+                        document.getElementById('fileList').appendChild(listItem);
+                    });
+                })
+
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        }
+
+        // 下载文件
+        function downloadFile() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            // 获取要下载的文件名，存入数组
+            const selectedFiles = Array.from(checkboxes).map(checkbox => checkbox.value);
+            if (selectedFiles.length === 0) {
+                alert('请选择要下载的文件');
+                return;
+            }
+            selectedFiles.forEach((file) => {
+                fetch(`/download/:${file}`)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const downloadUrl = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = downloadUrl;
+                        link.setAttribute('download', file);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+
+                    })
+                    .catch(error => console.error('Error downloading file:', error));
+            });
+
+        }
+
+        // 初始化文件列表
+        updateFileList();
+    </script>
+</body>
+
+</html>
