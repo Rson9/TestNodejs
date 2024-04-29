@@ -100,7 +100,13 @@
         function uploadFile() {
             var fileInput = document.getElementById('fileInput');
             var file = fileInput.files[0];
+            const maxFileSize = 20 *1024 * 1024; //20MB
             if (file) {
+                if(file.size > maxFileSize){
+                    alert('文件大小超过限制,你只能上传小于' + (maxFileSize/1024/1024).toFixed(2) + 'MB。');
+                    event.target.value = '';
+                    return;
+                }
                 var formData = new FormData();
                 formData.append('file', file);
                 fetch('/upload', {

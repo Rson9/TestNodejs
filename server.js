@@ -17,7 +17,11 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage,
+    limits:{ 
+        fileSize: 20 * 1024 * 1024 //20MB
+    }
+    } );
 app.set('view engine', 'ejs');
 // 设置静态文件目录
 app.use(express.static('public'));
@@ -61,6 +65,7 @@ app.get('/api/files', (req, res) => {
         res.json(files);
     });
 });
+
 
 // 设置端口
 const PORT = process.env.PORT || 3000;
