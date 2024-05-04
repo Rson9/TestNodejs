@@ -21,7 +21,7 @@ const upload = multer({ storage: storage,
     limits:{ 
         fileSize: 20 * 1024 * 1024 //20MB
     }
-    } );
+} );
 app.set('view engine', 'ejs');
 // 设置静态文件目录
 app.use(express.static('public'));
@@ -37,6 +37,15 @@ app.post('/upload', upload.single('file'), (req, res) => {
     console.log('文件上传成功:', req.file.originalname);
     res.status(200).send({ message: '文件上传成功', filename: req.file.originalname });
 });
+app.use((err,req,res,next) =>{
+    if(err instanceof multer.MulterError){
+        if(err.code === 'LIMIT_FILE_SIZE'){
+            return res.status(413).send({message: 'File too large'});
+        }
+    }
+    return res.status(500).send('Unknown error');
+
+})
 
 const downloadDir = path.join(__dirname, 'uploads');
 //下载文件
@@ -65,7 +74,6 @@ app.get('/api/files', (req, res) => {
         res.json(files);
     });
 });
-
 
 // 设置端口
 const PORT = process.env.PORT || 3000;
