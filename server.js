@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const iconv = require('iconv-lite');
 const app = express();
 
 const storage = multer.diskStorage({
@@ -9,43 +10,44 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
-        const originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
-        const extension = path.extname(originalname);
-        const basename = path.basename(originalname, extension);
-        file.originalname = basename + extension;
-        cb(null, file.originalname);
+        const fileName = iconv.decode(file.originalname, 'utf-8');
+        cb(null, fileName);
     }
 });
 
-const upload = multer({ storage: storage,
-    limits:{ 
+const upload = multer({
+    storage: storage,
+    limits: {
         fileSize: 20 * 1024 * 1024 //20MB
     }
-} );
-app.set('view engine', 'ejs');
+});
 // 设置静态文件目录
-app.use(express.static('public'));
-app.use('uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static('src/main'));
+// 使用express.json()中间件解析JSON请求体,就是json在file.body中
 app.use(express.json());
-// 文件上传路由
+
+//返回主界面
+app.get('/', (req, res) => {
+
+    return res.sendFile(path.join(__dirname, 'src/main/html/index.html'));
+})
+
+// 单个文件上传路由
 app.post('/upload', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        // 如果没有文件上传，返回错误信息
-        return res.status(400).send({ message: '没有选择文件' });
-    }
     // 文件上传成功，打印并返回文件的原始名称
     console.log('文件上传成功:', req.file.originalname);
-    res.status(200).send({ message: '文件上传成功', filename: req.file.originalname });
-});
-app.use((err,req,res,next) =>{
-    if(err instanceof multer.MulterError){
-        if(err.code === 'LIMIT_FILE_SIZE'){
-            return res.status(413).send({message: 'File too large'});
-        }
-    }
-    return res.status(500).send('Unknown error');
+    return res.status(200).send({ message: '文件上传成功'});
+}
+);
 
-})
+//处理错误
+app.use((err, req, res, next) => { 
+    if (err instanceof multer.MulterError & err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).send({message: '文件大小超过限制'});
+    }
+    next(err);
+}
+)
 
 const downloadDir = path.join(__dirname, 'uploads');
 //下载文件

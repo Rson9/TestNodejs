@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header,
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em;
+}
+
+.file-upload,
+.file-download {
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.file-upload h2,
+.file-download h2 {
+    margin-bottom: 35px;
+}
+
+.file-upload input[type="file"] {
+    margin-bottom: 10px;
+}
+
+#sc {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.file-upload button:hover {
+    background-color: #0056b3;
+}
+
+footer p {
+    margin: 0;
+}
+
+
+.flex-container {
+    display: flex;
+    align-items: center;
+}
+
+.flex-container h2,
+.flex-container button {
+    margin-right: 60px;
+    /* 在标题和按钮之间创建空隙 */
+}

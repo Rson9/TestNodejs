@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件共享平台</title>
+    <link rel="stylesheet" href="../css/fileList.css">
+    <link rel="stylesheet" href="../css/index.css">
+</head>
+
+<body>
+    <header>
+        <h1>文件共享平台</h1>
+    </header>
+    <section class="file-upload">
+        <h2>上传文件</h2>
+        <input type="file" id="fileInput" name="file" accept="*">
+        <button onclick="uploadFile()" id="sc">上传</button>
+    </section>
+    <section class="file-download">
+        <div class="flex-container">
+            <h2>文件目录</h2>
+            <button onclick="downloadFile()" id="sc">下载</button>
+        </div>
+
+        <ul id="fileList">
+            <!-- 文件列表项将在这里动态生成 -->
+        </ul>
+
+    </section>
+    <footer>
+        <p>版权所有 &copy; 2024 文件共享平台</p>
+    </footer>
+    <script src="../js/index.js"></script>
+</body>
+
+</html>
